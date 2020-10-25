@@ -8,9 +8,10 @@ const getUsers = (req, res) => {
 
 const getUser = (req, res) => {
   User.findOne({ _id: req.params.userId })
+    .orFail()
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(404).send({ message: 'Нет пользователя с таким id' });
       } else {
         res.status(500).send({ message: 'Ошибка сервера' });

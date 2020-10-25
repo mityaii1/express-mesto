@@ -20,9 +20,10 @@ const createCard = (req, res) => {
 };
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
+    .orFail()
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(404).send({ message: 'Карточка не найдена' });
       } else {
         res.status(500).send({ message: 'Ошибка сервера' });
