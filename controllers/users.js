@@ -1,31 +1,37 @@
-const path = require('path');
-const readFile = require('../utils/read-file');
-
-const jsonDataPath = path.join(__dirname, '..', 'data', 'users.json');
+const User = require('../models/user');
 
 const getUsers = (req, res) => {
-  readFile(jsonDataPath)
-    .then((data) => res.send(data))
-    .catch(() => res.status(500).send({ message: 'Ошибка считывания файла' }));
+  User.find({})
+    .then((data) => res.status(200).send(data))
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 };
 
 const getUser = (req, res) => {
-  const { id } = req.params;
-  readFile(jsonDataPath)
-    .then((data) => {
-      const userToFind = data.find((user) => user._id === id);
-      return userToFind;
-    })
-    .then((user) => {
-      if (!user) {
-        return res.status(404).send({ message: 'Нет пользователя с таким id' });
+  User.findOne({ _id: req.params.userId })
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(404).send({ message: 'Нет пользователя с таким id' });
+      } else {
+        res.status(500).send({ message: 'Ошибка сервера' });
       }
-      return res.send(user);
-    })
-    .catch(() => res.status(500).send({ message: 'Ошибка считывания файла' }));
+    });
+};
+const createUser = (req, res) => {
+  const { name, about, avatar } = req.body;
+  User.create({ name, about, avatar })
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(500).send({ message: 'Ошибка сервера' });
+      }
+    });
 };
 
 module.exports = {
   getUsers,
   getUser,
+  createUser,
 };
