@@ -11,7 +11,9 @@ const getUser = (req, res) => {
     .orFail()
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else if (err.name === 'DocumentNotFoundError') {
         res.status(404).send({ message: 'Нет пользователя с таким id' });
       } else {
         res.status(500).send({ message: 'Ошибка сервера' });
@@ -24,7 +26,7 @@ const createUser = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res.status(400).send({ message: err.message });
       } else {
         res.status(500).send({ message: 'Ошибка сервера' });
       }

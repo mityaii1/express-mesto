@@ -12,7 +12,7 @@ const createCard = (req, res) => {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res.status(400).send({ message: err.message });
       } else {
         res.status(500).send({ message: 'Ошибка сервера' });
       }
@@ -23,7 +23,9 @@ const deleteCard = (req, res) => {
     .orFail()
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else if (err.name === 'DocumentNotFoundError') {
         res.status(404).send({ message: 'Карточка не найдена' });
       } else {
         res.status(500).send({ message: 'Ошибка сервера' });
